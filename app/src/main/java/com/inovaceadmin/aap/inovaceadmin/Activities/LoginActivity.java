@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         logIn();
     }
     public boolean logIn(){
@@ -79,6 +80,11 @@ public class LoginActivity extends AppCompatActivity {
                             refreshToken = map.get("refresh-token");
                             Log.d("token",token);
                             Log.d("refresh-token",refreshToken);
+                            Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                            intent.putExtra("token",token);
+                            intent.putExtra("refreshToken",refreshToken);
+                            startActivity(intent);
+                            finish();
                             return super.parseNetworkResponse(response);
                         }
                     };
