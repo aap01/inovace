@@ -19,12 +19,21 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.inovaceadmin.aap.inovaceadmin.R;
 import com.inovaceadmin.aap.inovaceadmin.Resources.Resource;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private android.support.v7.widget.Toolbar toolBar;
     String token=null,refreshToken = null;
+    Date date;
     JsonObjectRequest jsonObjectRequest;
     boolean res =false;
     @Override
@@ -54,19 +64,36 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
     }
+    public void addLayoutDynamically(JSONObject jsonObject){
+        JSONArray jsonArray = new JSONArray();
+        try {
+            jsonArray = jsonObject.getJSONArray("departmentList");
+            for(int i = 0; i<jsonArray.length(); i++){
+                //Log.d("JSON OBJECT",jsonArray.getJSONObject(i).toString());
+                String deartmentName = (String) jsonArray.getJSONObject(i).get("name");
+                Log.d("departmentName",deartmentName);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
     public boolean configureLayout(){
         /**
          * implementing attendance GET method
          */
         Resource resource = new Resource();
         JSONObject jsonObject = new JSONObject();
-
         final RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, resource.getDepartment, null,
+        /**
+         * Getting departmentList
+         */
+        JsonObjectRequest jsonObjectRequest_department = new JsonObjectRequest(Request.Method.GET, resource.getDepartment, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.e("Response",response.toString());
+                        addLayoutDynamically(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -86,10 +113,54 @@ public class MainActivity extends AppCompatActivity {
             }
 
         };
-        requestQueue.add(jsonObjectRequest);
+        /**
+         * configuring date json object for query based on date
+         */
+        final long today = System.currentTimeMillis();
+        final long yesterday = today-86400000;
+        Log.d("Today",Long.toString(today));
+        Log.d("Yesterday",Long.toString(yesterday));
+        JSONObject attendanceRequest = new JSONObject();
+        try {
+            attendanceRequest.put("from",yesterday);
+            attendanceRequest.put("to",today);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest_attendance = new JsonObjectRequest(Request.Method.GET, resource.getAttendance, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("attendance Response",response.toString());
+                        addLayoutDynamically(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Error",error.toString());
+                    }
+                }){
 
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map map = new HashMap<String,String>();
+                map.put("token",token);
+                map.put("refresh-token",refreshToken);
+                return map;
 
+            }
 
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map map = new HashMap<String,String>();
+                map.put("from",yesterday);
+                map.put("to",today);
+                return map;
+            }
+        };
+        requestQueue.add(jsonObjectRequest_department);
+        requestQueue.add(jsonObjectRequest_attendance);
 
         /**
          * code for drawer toolbar
