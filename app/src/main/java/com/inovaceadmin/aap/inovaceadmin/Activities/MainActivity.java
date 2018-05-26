@@ -1,4 +1,4 @@
-package com.inovaceadmin.aap.inovaceadmin;
+package com.inovaceadmin.aap.inovaceadmin.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -10,24 +10,43 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.inovaceadmin.aap.inovaceadmin.R;
+
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private android.support.v7.widget.Toolbar toolBar;
-
-    @SuppressLint("WrongViewCast")
+    String Token=null;
+    boolean res =false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //if(authenticateToken()){
+            configureLayout();
+        //}else {
+            //Intent intent = new Intent(this,LoginActivity.class);
+            //res = true;
+            //startActivity(intent);
+            //finish();
 
-        /***code for drawer toolbar***/
+        //}
+    }
+    public boolean authenticateToken(){
+
+        return res;
+    }
+    public void configureLayout(){
+
+        /**
+         * code for drawer toolbar
+         */
         toolBar = findViewById(R.id.activity_main_actionbar);
         setSupportActionBar(toolBar);
 
-
-
-        /***code for drawer toggle button***/
+        /**
+         *code for drawer toggle button**
+         */
         drawerLayout = findViewById(R.id.activity_main_drawerlayout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,R.string.open,R.string.close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
