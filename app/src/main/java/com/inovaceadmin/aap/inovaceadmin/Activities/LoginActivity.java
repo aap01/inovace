@@ -2,6 +2,8 @@ package com.inovaceadmin.aap.inovaceadmin.Activities;
 
 import android.app.VoiceInteractor;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -78,8 +80,17 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d("map",map.toString());
                             token = map.get("token");
                             refreshToken = map.get("refresh-token");
-                            Log.d("token",token);
-                            Log.d("refresh-token",refreshToken);
+                            /**
+                             * committing userdata into local cahce
+                             */
+                            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("token", token);
+                            editor.putString("refreshToken", refreshToken);
+                            editor.commit();
+                            /**
+                             * Switch to MainActivity
+                             */
                             Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                             intent.putExtra("token",token);
                             intent.putExtra("refreshToken",refreshToken);
